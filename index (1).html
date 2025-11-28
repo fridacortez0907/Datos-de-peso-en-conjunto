@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gráficas de Peso por ID y Grupo</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+  /* Estilo general con fuente formal */
+  body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    margin: 20px;
+    background: #f4f7fa;
+    color: #333;
+  }
+
+  h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-weight: normal;
+  }
+
+  /* Contenedor de pestañas */
+  .tab {
+    overflow: hidden;
+    border-bottom: 3px solid #2980b9;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    border-radius: 8px 8px 0 0;
+    background: #ecf0f1;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  /* Botones de pestañas */
+  .tab button {
+    background-color: #ecf0f1;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 28px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 16px;
+    font-weight: 600;
+    color: #34495e;
+    border-radius: 8px 8px 0 0;
+    margin-right: 4px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+  }
+
+  .tab button:hover {
+    background-color: #d0d7de;
+    color: #1a5276;
+  }
+
+  .tab button.active {
+    background-color: #2980b9;
+    color: white;
+    box-shadow: 0 4px 8px rgba(41, 128, 185, 0.4);
+  }
+
+  /* Contenido de pestañas */
+  .tabcontent {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px 30px 30px 30px;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-family: Georgia, 'Times New Roman', Times, serif;
+  }
+
+  /* Contenedor del gráfico */
+  .plot-container {
+    width: 100%;
+    height: 600px;
+    overflow-y: auto;
+  }
+
+  /* Pie de página */
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #7f8c8d;
+    font-size: 16px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h2>Gráficas de Peso por ID y Grupo</h2>
+
+<div class="tab">
+  <button class="tablinks" onclick="openGroup(event, 'Control')" id="defaultOpen">Control</button>
+  <button class="tablinks" onclick="openGroup(event, 'HFD')">HFD</button>
+  <button class="tablinks" onclick="openGroup(event, 'Letrozol')">Letrozol</button>
+  <button class="tablinks" onclick="openGroup(event, 'HFD+LET')">HFD+LET</button>
+</div>
+
+<div id="Control" class="tabcontent">
+  <div id="plot-Control" class="plot-container"></div>
+</div>
+
+<div id="HFD" class="tabcontent">
+  <div id="plot-HFD" class="plot-container"></div>
+</div>
+
+<div id="Letrozol" class="tabcontent">
+  <div id="plot-Letrozol" class="plot-container"></div>
+</div>
+
+<div id="HFD+LET" class="tabcontent">
+  <div id="plot-HFD+LET" class="plot-container"></div>
+</div>
+
+<footer>
+  &copy; 2025 Datos de Peso - Visualización Interactiva
+</footer>
+
+<script>
+// Datos procesados del PDF
+const fechas = ['27-jul-25', '04-jul-25', '10-jul-25', '17-jul-25', '24-jul-25', '31-jul-25', '07-ago-25', '14-ago-25', '21-ago-25', '28-ago-25', '04-sept-25', '11-sep-25', '18-sep-25',	'25-sep-25',	'2-oct-25',	'9-oct-25',	'16-oct-25'];
+const semanas = ['Semana 3', 'Semana 4', 'Semana 5', 'Semana 6', 'Semana 7', 'Semana 8', 'Semana 9', 'Semana 10', 'Semana 11', 'Semana 12', 'Semana 13', 'Semana 14', 'Semana 15', 'Semana 16', 'Semana 17', 'Semana 18', 'Semana 19'];
+
+const data = [
+  {ID:1, Condicion:'Control', pesos:[47,88,135,158,185,216,237,245,252,266,270,269,274,280,290,290,307]},
+  {ID:2, Condicion:'Control', pesos:[46,83,125,152,178,210,226,236,201,189,220,241,256,256,264,272,285]},
+  {ID:3, Condicion:'Control', pesos:[41,76,113,136,160,188,195,208,218,226,231,231,239,239,246,256,258]},
+  {ID:4, Condicion:'Control', pesos:[48,90,132,162,180,212,229,251,273,283,295,308,315,320,332,335,342]},
+  {ID:5, Condicion:'Control', pesos:[47,89,136,167,194,222,237,253,269,268,276,272,289,282,284,297,303]},
+  {ID:6, Condicion:'Control', pesos:[44,80,122,153,171,206,219,230,238,246,252,269,270,270,273,284,286]},
+  {ID:7, Condicion:'Control', pesos:[49,86,124,148,168,196,210,229,243,247,256,166,270,268,277,285,286]},
+  {ID:8, Condicion:'Control', pesos:[46,80,118,142,158,183,195,212,231,246,254,253,260,262,265,271,275]},
+
+  {ID:9, Condicion:'HFD', pesos:[43,73,103,123,169,199,223,242,250,268,283,285,285,291,296,301,312]},
+  {ID:10, Condicion:'HFD', pesos:[41,63,88,121,152,175,195,224,243,250,255,269,273,268,270,283,285]},
+  {ID:11, Condicion:'HFD', pesos:[44,71,102,133,163,191,213,232,252,264,270,279,283,283,283,296,303]},
+  {ID:12, Condicion:'HFD', pesos:[39,68,102,142,173,204,231,257,277,288,300,310,310,312,312,319,329]},
+  {ID:13, Condicion:'HFD', pesos:[38,63,91,120,149,175,206,226,242,250,257,260,269,269,288,284,282]},
+  {ID:14, Condicion:'HFD', pesos:[40,67,96,128,163,186,214,233,240,251,258,261,268,270,274,281,292]},
+  {ID:15, Condicion:'HFD', pesos:[45,74,105,132,157,185,203,215,228,242,253,249,258,254,266,271,276]},
+  {ID:16, Condicion:'HFD', pesos:[38,60,86,124,154,186,212,235,255,273,282,290,293,296,297,307,327]},
+
+  {ID:17, Condicion:'Letrozol', pesos:[47,65,103,141,172,200,224,235,244,263,269,275,270,288,311,326,340]},
+  {ID:18, Condicion:'Letrozol', pesos:[45,61,106,147,181,213,237,265,282,284,297,310,309,328,342,356,366]},
+  {ID:19, Condicion:'Letrozol', pesos:[46,70,109,140,168,194,174,168,0,0,null,null,null,null,null,null,null]},
+  {ID:20, Condicion:'Letrozol', pesos:[48,66,105,145,173,201,220,238,260,260,271,280,293,297,331,335,342]},
+  {ID:21, Condicion:'Letrozol', pesos:[48,73,118,159,184,204,224,241,259,268,283,282,284,293,312,329,339]},
+  {ID:22, Condicion:'Letrozol', pesos:[41,60,103,140,169,205,239,238,256,263,274,290,295,301,331,341,358]},
+
+  {ID:23, Condicion:'HFD+LET', pesos:[45,79,108,137,167,197,218,236,253,265,306,288,286,291,315,344,349]},
+  {ID:24, Condicion:'HFD+LET', pesos:[47,85,115,148,175,213,236,258,271,296,272,304,308,318,336,346,365]},
+  {ID:25, Condicion:'HFD+LET', pesos:[39,73,107,143,171,198,221,241,253,262,274,285,290,295,316,347,362]},
+  {ID:26, Condicion:'HFD+LET', pesos:[53,85,117,118,183,214,242,254,267,275,288,297,303,315,305,373,396]},
+  {ID:27, Condicion:'HFD+LET', pesos:[38,64,90,122,156,185,210,232,251,260,265,280,284,287,306,333,348]},
+  {ID:28, Condicion:'HFD+LET', pesos:[45,81,109,148,175,214,255,266,277,293,303,312,321,337,347,377,391]},
+  {ID:29, Condicion:'HFD+LET', pesos:[33,61,86,152,142,168,192,209,218,231,238,245,245,252,267,290,304]},
+  {ID:30, Condicion:'HFD+LET', pesos:[48,82,114,160,188,214,245,240,246,257,278,288,287,280,297,325,348]}
+];
+
+// Colores para las líneas (opcional, para mejor distinción)
+const colors = [
+  '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b',
+  '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#393b79', '#637939',
+  '#8c6d31', '#843c39', '#7b4173', '#3182bd', '#e6550d', '#31a354',
+  '#756bb1', '#636363', '#e7ba52', '#ad494a', '#a55194', '#6b6ecf',
+  '#b5cf6b', '#de9ed6', '#9c9ede', '#cedb9c', '#f7b6d2', '#c7c7c7'
+];
+
+// Función para crear gráficos por grupo
+function crearGraficos(grupo) {
+  const containerId = 'plot-' + grupo;
+  const container = document.getElementById(containerId);
+  container.innerHTML = ''; // limpiar contenido previo
+
+  // Filtrar datos por grupo
+  const grupoData = data.filter(d => d.Condicion === grupo);
+
+  // Crear un gráfico con múltiples líneas (una por ID)
+  const traces = grupoData.map((d, i) => ({
+    x: fechas,
+    y: d.pesos,
+    mode: 'lines+markers',
+    name: 'ID ' + d.ID,
+    connectgaps: true,
+    line: { color: colors[i % colors.length], width: 2 },
+    marker: { size: 6 }
+  }));
+
+  // Anotaciones vacías por defecto
+  let annotations = [];
+
+  // Agregar anotación especial para ID 19 en Letrozol
+  if (grupo === 'Letrozol') {
+    const id19 = grupoData.find(d => d.ID === 19);
+    if (id19) {
+      // Encontrar último índice con dato válido
+      let lastIndex = id19.pesos.length - 1;
+      while (lastIndex >= 0 && (id19.pesos[lastIndex] === null || id19.pesos[lastIndex] === undefined)) {
+        lastIndex--;
+      }
+      if (lastIndex >= 0) {
+        annotations.push({
+          x: fechas[lastIndex],
+          y: id19.pesos[lastIndex],
+          xref: 'x',
+          yref: 'y',
+          text: 'Falleció',
+          showarrow: true,
+          arrowhead: 2,
+          ax: 0,
+          ay: -40,
+          font: { color: 'red', size: 14, family: 'Georgia, serif' }
+        });
+      }
+    }
+  }
+
+  // Combinar fechas y semanas para mostrar en dos líneas en el eje X
+  // Usamos tickvals para las posiciones y ticktext con salto de línea para mostrar dos líneas
+  const tickvals = fechas;
+  const ticktext = fechas.map((fecha, i) => `${fecha}<br>${semanas[i]}`);
+
+  const layout = {
+    title: {
+      text: `Peso a lo largo del tiempo - Grupo ${grupo}`,
+      font: { size: 22, color: '#34495e', family: 'Georgia, serif' }
+    },
+    xaxis: {
+      title: 'Fecha / Semana',
+      tickvals: tickvals,
+      ticktext: ticktext,
+      tickangle: -45,
+      tickfont: { size: 12, color: '#34495e', family: 'Georgia, serif' },
+      zeroline: false,
+      automargin: true
+    },
+    yaxis: {
+      title: 'Peso',
+      tickfont: { size: 12, color: '#34495e', family: 'Georgia, serif' },
+      zeroline: false
+    },
+    height: 600,
+    legend: {
+      orientation: "h",
+      y: -0.25,
+      font: { size: 12, family: 'Georgia, serif' },
+      bgcolor: 'rgba(0,0,0,0)'
+    },
+    margin: { t: 80, b: 140 },
+    annotations: annotations,
+    plot_bgcolor: '#ffffff',
+    paper_bgcolor: '#ffffff'
+  };
+
+  Plotly.newPlot(containerId, traces, layout, {responsive: true});
+}
+
+// Función para manejar pestañas
+function openGroup(evt, groupName) {
+  const tabcontent = document.getElementsByClassName("tabcontent");
+  for (let i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  const tablinks = document.getElementsByClassName("tablinks");
+  for (let i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(groupName).style.display = "block";
+  evt.currentTarget.className += " active";
+
+  crearGraficos(groupName);
+}
+
+// Abrir pestaña por defecto
+document.getElementById("defaultOpen").click();
+</script>
+
+</body>
+</html>
