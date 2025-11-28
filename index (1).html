@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráficas de Peso por ID</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: normal;
+        }
+        .chart-container {
+            width: 100%;
+            height: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gráficas de Peso por ID</h1>
+
+        <!-- Contenedor para la gráfica -->
+        <div class="chart-container">
+            <canvas id="weightChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Función para generar datos ficticios para un ID
+        function generateDataForID(id) {
+            const data = [];
+            let baseWeight = Math.random() * 100 + 50; // Peso base aleatorio entre 50-150
+            for (let i = 0; i < 12; i++) { // 12 puntos de tiempo (meses)
+                baseWeight += (Math.random() - 0.5) * 10; // Variación aleatoria
+                data.push(Math.max(0, baseWeight.toFixed(2))); // Evitar negativos
+            }
+            return data;
+        }
+
+        // Etiquetas para el eje X (tiempo)
+        const labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+        // Crear datasets para 30 IDs
+        const datasets = [];
+        const colors = [
+            'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(199, 199, 199, 1)', 'rgba(83, 102, 255, 1)',
+            'rgba(255, 99, 255, 1)', 'rgba(99, 255, 132, 1)', 'rgba(132, 99, 255, 1)', 'rgba(255, 132, 99, 1)',
+            'rgba(99, 132, 255, 1)', 'rgba(255, 255, 99, 1)', 'rgba(99, 255, 255, 1)', 'rgba(255, 99, 99, 1)',
+            'rgba(99, 99, 255, 1)', 'rgba(255, 99, 199, 1)', 'rgba(199, 255, 99, 1)', 'rgba(99, 199, 255, 1)',
+            'rgba(255, 199, 99, 1)', 'rgba(99, 255, 199, 1)', 'rgba(199, 99, 255, 1)', 'rgba(255, 255, 199, 1)',
+            'rgba(199, 199, 255, 1)', 'rgba(255, 199, 199, 1)', 'rgba(199, 255, 255, 1)', 'rgba(255, 199, 255, 1)',
+            'rgba(199, 255, 199, 1)', 'rgba(255, 255, 255, 1)'
+        ]; // Colores para distinguir las líneas
+
+        for (let id = 1; id <= 30; id++) {
+            const data = generateDataForID(id);
+            datasets.push({
+                label: `ID ${id}`,
+                data: data,
+                borderColor: colors[id - 1],
+                backgroundColor: colors[id - 1].replace('1)', '0.2)'), // Transparente para el área
+                tension: 0.1,
+                fill: false
+            });
+        }
+
+        // Crear la gráfica
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 10,
+                                family: 'Times New Roman, serif'
+                            },
+                            boxWidth: 0, // Quita los recuadros para un look más sobrio
+                            usePointStyle: true // Usa puntos en lugar de recuadros
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Peso (kg)',
+                            font: {
+                                size: 14,
+                                family: 'Times New Roman, serif'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Times New Roman, serif'
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tiempo (Meses)',
+                            font: {
+                                size: 14,
+                                family: 'Times New Roman, serif'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Times New Roman, serif'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
